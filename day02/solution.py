@@ -1,3 +1,4 @@
+from collections import defaultdict
 import re, sys, operator
 from functools import reduce
 
@@ -6,13 +7,13 @@ roundre = re.compile(r'(\d+) (red|blue|green)')
 
 class Game:
     def __init__(self, line):
-        matched = linere.match(line).groups()
-        self.gameid = int(matched[0])
-        rounds = matched[1].split(';')
+        gameid,rounds = linere.match(line).groups()
+        self.gameid = int(gameid)
+        rounds = rounds.split(';')
         self.rounds = [parseRound(r) for r in rounds]
     
     def max(self, color: str) -> int:
-        return max(*[v[color] for v in self.rounds if v.get(color, 0)], 0)
+        return max([v[color] for v in self.rounds])
     
     def maxall(self) -> tuple[int,int,int]:
         return (self.max('red'),self.max('green'),self.max('blue'))
@@ -20,8 +21,8 @@ class Game:
 def parseLine(line: str) -> Game:
     return Game(line)
 
-def parseRound(round: str) -> dict[str,int]:
-    d = {}
+def parseRound(round: str) -> defaultdict[str,int]:
+    d = defaultdict(int)
     for r in roundre.findall(round):
         d[r[1]] = int(r[0])
     return d
