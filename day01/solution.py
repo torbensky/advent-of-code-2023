@@ -5,31 +5,12 @@ def part1(lines: list[str]):
     result = 0
     for line in lines:
         digits = [c for c in line if c.isnumeric()]
-        result += int("{}{}".format(digits[0],digits[-1]))
+        result += int(digits[0] + digits[-1])
     print('part 1:', result)
 
+digitnames = ['one','two','three','four','five','six','seven','eight','nine']
 def translate(v: str) -> str:
-    match v:
-        case 'one':
-            return '1'
-        case 'two':
-            return '2'
-        case 'three':
-            return '3'
-        case 'four':
-            return '4'
-        case 'five':
-            return '5'
-        case 'six':
-            return '6'
-        case 'seven':
-            return '7'
-        case 'eight':
-            return '8'
-        case 'nine':
-            return '9'
-        case other:
-            return v
+    return v if v.isdigit() else str(digitnames.index(v)+1)
 
 def part2(lines: list[str]):
     result = 0
