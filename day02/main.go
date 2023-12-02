@@ -10,23 +10,38 @@ import (
 
 var gameRE = regexp.MustCompile(`Game (\d+): (.+)`)
 
-type round struct {
+type rgb struct {
 	r int
 	g int
 	b int
 }
 
-func (r round) valid(maxR, maxG, maxB int) bool {
+func (r rgb) valid(maxR, maxG, maxB int) bool {
 	return r.r <= maxR && r.g <= maxG && r.b <= maxB
 }
 
 type game struct {
 	ID     int
-	rounds []round
+	rounds []rgb
 }
 
-func parseRound(rstr string) round {
-	round := round{}
+func (g game) maxvals() (result rgb) {
+	for _, r := range g.rounds {
+		if r.r > result.r {
+			result.r = r.r
+		}
+		if r.g > result.g {
+			result.g = r.g
+		}
+		if r.b > result.b {
+			result.b = r.b
+		}
+	}
+	return result
+}
+
+func parseRound(rstr string) rgb {
+	round := rgb{}
 	for _, r := range strings.Split(strings.TrimSpace(rstr), ",") {
 		r = strings.TrimSpace(r)
 		pair := strings.Split(r, " ")
@@ -47,7 +62,7 @@ func parseRound(rstr string) round {
 	return round
 }
 
-func parseRounds(rstr string) (rounds []round) {
+func parseRounds(rstr string) (rounds []rgb) {
 	rs := strings.Split(rstr, ";")
 	for _, r := range rs {
 		rounds = append(rounds, parseRound(r))
@@ -81,6 +96,16 @@ GAMELOOP:
 	fmt.Println("Part 1:", result)
 }
 
+func part2(lines []string) {
+	result := 0
+	for _, line := range lines {
+		g := parseGame(line)
+		m := g.maxvals()
+		result += m.r * m.g * m.b
+	}
+	fmt.Println("Part 2:", result)
+}
+
 func main() {
 	data, err := os.ReadFile(os.Args[1])
 	if err != nil {
@@ -88,4 +113,5 @@ func main() {
 	}
 	lines := strings.Split(string(data), "\n")
 	part1(lines)
+	part2(lines)
 }
