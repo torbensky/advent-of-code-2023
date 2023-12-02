@@ -42,8 +42,24 @@ function part1(lines: string[]){
     let result = lines.map(parseGame)
         .filter(g => !g.rounds.find(r => r.r > maxR || r.g > maxG || r.b > maxB))
         .reduce((acc,cur) => acc + cur.id, 0)
-    console.log(result)
+    console.log('part 1:', result)
+}
+
+function part2(lines: string[]){
+    const result = lines.map(parseGame)
+        .map(g =>  g.rounds.reduce((acc, cur) => {
+                acc.r = Math.max(cur.r, acc.r)
+                acc.g = Math.max(cur.g, acc.g)
+                acc.b = Math.max(cur.b, acc.b)
+                return acc
+            }, {r: 0, g: 0, b: 0})
+        )
+        .reduce((acc, cur) => {
+            return acc + cur.r * cur.g * cur.b
+        }, 0)
+    console.log('part 2:', result)
 }
 
 const lines = readFileSync(process.argv[2]).toString().trim().split('\n')
 part1(lines)
+part2(lines)
