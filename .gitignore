@@ -1,3 +1,7 @@
+node_modules
+# personal challenge input files
+input.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
