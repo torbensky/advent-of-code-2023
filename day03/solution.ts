@@ -57,17 +57,43 @@ function parseGrid(lines: string[]){
 }
 
 function part1(lines: string[]){
-    let result = 0
     const {nums, symbols} = parseGrid(lines)
+    const result = findParts(nums, symbols).reduce((acc,cur) => acc + cur, 0)
+    console.log(`Part 1: ${result}`)
+}
+
+function findParts(nums: Grid<number>, symbols: Grid<string>) {
+    const parts: number[] = [];
     nums.forEach((n) => {
         symbols.forEach(s => {
-            if(within(s.pos, boundary(n.pos, n.value.toString().length))){
-                result += n.value
+            if (within(s.pos, boundary(n.pos, n.value.toString().length))) {
+                parts.push(n.value);
+            }
+        });
+    });
+    return parts
+}
+
+function part2(lines: string[]){
+    let result = 0
+    const {nums, symbols} = parseGrid(lines)
+    const parts = findParts(nums, symbols)
+    symbols.forEach(s => {
+        const adjacent: number[] = []
+        nums.forEach(n => {
+            if(parts.includes(n.value)){
+                if(within(s.pos, boundary(n.pos, n.value.toString().length))){
+                    adjacent.push(n.value)
+                }
             }
         })
+        if(adjacent.length === 2){
+            result += adjacent[0] * adjacent[1]
+        }
     })
-    console.log(`Part 1: ${result}`)
+    console.log(`Part 2: ${result}`)
 }
 
 const lines = readFileSync(process.argv[2]).toString().trim().split('\n')
 part1(lines)
+part2(lines)
