@@ -96,18 +96,43 @@ func parseGrid(lines []string) (numGrid, symbolGrid) {
 	return nums, symbols
 }
 
-func part1(lines []string) {
-	result := 0
-	nums, symbols := parseGrid(lines)
+func findParts(nums numGrid, symbols symbolGrid) (parts []int) {
 	for npos, num := range nums {
 		for spos := range symbols {
 			min, max := num.bounds(npos)
 			if contains(spos, min, max) {
-				result += int(num)
+				parts = append(parts, int(num))
 			}
 		}
 	}
+	return parts
+}
+
+func part1(lines []string) {
+	result := 0
+	nums, symbols := parseGrid(lines)
+	for _, n := range findParts(nums, symbols) {
+		result += n
+	}
 	fmt.Printf("Part 1: %d\n", result)
+}
+
+func part2(lines []string) {
+	result := 0
+	nums, symbols := parseGrid(lines)
+	for spos := range symbols {
+		adjacent := []int{}
+		for npos, gn := range nums {
+			min, max := gn.bounds(npos)
+			if contains(spos, min, max) {
+				adjacent = append(adjacent, int(gn))
+			}
+		}
+		if len(adjacent) == 2 {
+			result += adjacent[0] * adjacent[1]
+		}
+	}
+	fmt.Printf("part 2: %d\n", result)
 }
 
 func main() {
@@ -117,4 +142,5 @@ func main() {
 	}
 	lines := strings.Split(strings.TrimSpace(string(data)), "\n")
 	part1(lines)
+	part2(lines)
 }
