@@ -1,4 +1,5 @@
 import { readFileSync } from "fs"
+import { Mapping, AlmanacMap, range } from "./types"
 
 function parseSeeds(line: string): number[] {
     return line.split(/\s+/).slice(1).map(s => parseInt(s))
@@ -9,49 +10,6 @@ function parseMap(line: string): Mapping {
     return new Mapping(source,dest,length)
 }
 
-class AlmanacMap {
-    name: string
-    mappings: Mapping[]
-    constructor(name: string, mappings: Mapping[]){
-        this.name = name
-        this.mappings = mappings
-    }
-    map(source: number): number {
-        for(const m of this.mappings){
-            const v = m.map(source)
-            if(v !== undefined){
-                return v
-            }
-        }
-        return source
-    }
-}
-
-class Mapping {
-    source: number
-    dest: number
-    length: number
-    constructor(source: number,dest: number,length: number){
-        this.source = source
-        this.dest = dest
-        this.length = length
-    }
-
-    map(source: number): number | undefined {
-        const diff = source - this.source
-        if(diff >= 0 && diff < this.length){
-            return this.dest + diff
-        }        
-    }
-}
-
-function followMap(seed: number, almanac: AlmanacMap[]): number {
-    let value = seed
-    almanac.forEach(am => {
-        value = am.map(value)
-    })
-    return value
-}
 
 function parseMaps(parts: string[]){
     return parts.map(p => {
@@ -60,17 +18,40 @@ function parseMaps(parts: string[]){
     })
 }
 
-function part1(lines: string[]){
-    const seeds = parseSeeds(lines[0])
-    const almanacMaps = parseMaps(lines.slice(1))
+function part1(parts: string[]){
+    const seeds = parseSeeds(parts[0])
+    const almanacMaps = parseMaps(parts.slice(1))
     let lowest = Number.MAX_SAFE_INTEGER
     seeds.forEach(seed => {
-        const location = followMap(seed,almanacMaps)
+        let location = seed
+        almanacMaps.forEach(am => {
+            location = am.map(location)
+        })        
         lowest = location < lowest ? location : lowest
     })
 
     console.log(`Part 1: ${lowest}`)
 }
 
+function part2(parts: string[]){
+    const seeds = parseSeeds(parts[0])
+    const almanacMaps = parseMaps(parts.slice(1))
+    
+    let lowest = Number.MAX_SAFE_INTEGER
+    for(let i = 0; i < seeds.length; i += 2){
+        let ranges: range[] = [[seeds[i], seeds[i] + seeds[i+1] - 1]]
+        for(let am of almanacMaps){
+            ranges = ranges.map(r => am.mapRange(r)).flat()
+        }
+        ranges = ranges.sort((a,b) => a[0] - b[0])
+        ranges.forEach(r => {
+            lowest = lowest > r[0] ? r[0] : lowest
+        })
+    }
+
+    console.log(`Part 2: ${lowest}`)
+}
+
 const parts = readFileSync(process.argv[2]).toString().trim().split("\n\n")
 part1(parts)
+part2(parts)
