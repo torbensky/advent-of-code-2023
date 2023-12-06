@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime
 
 class Mapping:
     def __init__(self, source: int, dest: int, length: int):
@@ -98,7 +99,10 @@ def part2(parts: list[str]):
     print('Part 2:', min(locations))     
 
 if __name__ == '__main__':
+    start = datetime.now()
     with open(sys.argv[1]) as file:
         parts = file.read().split('\n\n')
     part1(parts)
     part2(parts)
+    elapsed = datetime.now() - start
+    print("Elapsed time: ", elapsed.microseconds, "us") 
