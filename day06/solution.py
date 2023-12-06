@@ -4,6 +4,7 @@ from functools import reduce
 
 def wins_possible(time: int, record: int) -> int:
     winCount = 0
+    # can probably fast-forward time more than one step
     for holdTime in range (1,time):
         speed = holdTime
         traveled = speed * (time - holdTime)
