@@ -43,7 +43,6 @@ function part2(parts: string[]){
         for(let am of almanacMaps){
             ranges = ranges.map(r => am.mapRange(r)).flat()
         }
-        ranges = ranges.sort((a,b) => a[0] - b[0])
         ranges.forEach(r => {
             lowest = lowest > r[0] ? r[0] : lowest
         })
