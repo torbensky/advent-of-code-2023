@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type span struct {
@@ -159,11 +160,14 @@ func part2(chunks []string) {
 }
 
 func main() {
+	start := time.Now()
 	data, err := os.ReadFile(os.Args[1])
 	must(err, "unable to read input file")
 	chunks := strings.Split(strings.TrimSpace(string(data)), "\n\n")
 	part1(chunks)
 	part2(chunks)
+	elapsed := time.Since(start)
+	log.Printf("Took %s", elapsed)
 }
 
 func minInt(a, b int) int {
