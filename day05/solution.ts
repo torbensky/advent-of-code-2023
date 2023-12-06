@@ -51,6 +51,8 @@ function part2(parts: string[]){
     console.log(`Part 2: ${lowest}`)
 }
 
+console.time('Elapsed time')
 const parts = readFileSync(process.argv[2]).toString().trim().split("\n\n")
 part1(parts)
 part2(parts)
+console.timeEnd('Elapsed time')
