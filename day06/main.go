@@ -60,9 +60,8 @@ func winsPossible(time int, record int) int {
 	return int(longest - shortest + 1)
 }
 
-func part1(lines []string) {
-	ts := strings.Fields(lines[0])[1:]
-	ds := strings.Fields(lines[1])[1:]
+func part1(ts, ds []string) {
+
 	result := 1
 	for i := range ts {
 		t := mustInt(ts[i], "expecting int for a time value")
@@ -72,25 +71,20 @@ func part1(lines []string) {
 	fmt.Printf("Part 1: %d\n", result)
 }
 
+func part2(ts, ds []string) {
+	t := mustInt(strings.Join(ts, ""), "parsing time value")
+	d := mustInt(strings.Join(ds, ""), "parsing distance value")
+	fmt.Printf("Part 2: %d\n", winsPossible(t, d))
+}
+
 func main() {
 	data, err := os.ReadFile(os.Args[1])
 	must(err, "unable to read input file")
 	lines := strings.Split(string(data), "\n")
-	part1(lines)
-}
-
-func minInt(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func maxInt(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
+	ts := strings.Fields(lines[0])[1:]
+	ds := strings.Fields(lines[1])[1:]
+	part1(ts, ds)
+	part2(ts, ds)
 }
 
 func mustInt(str, msg string) int {
