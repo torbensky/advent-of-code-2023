@@ -53,18 +53,15 @@ def handrank(hand: str, wildcards: bool):
     cardranks.insert(0, typerank(hand, wildcards))
     return tuple(cardranks)
 
+def solve(rounds: list[tuple[str,str]], wildcards: bool):
+    rounds = sorted([(handrank(h, wildcards),b) for (h,b) in rounds])
+    return sum([(i+1) * int(bid) for i,(h,bid) in enumerate(rounds)])
 
 def part1(rounds: list[tuple[str,str]]):
-    rounds = [(handrank(h, False),b) for (h,b) in rounds]
-    rounds.sort()
-    result = sum([(i+1) * int(bid) for i,(h,bid) in enumerate(rounds)])
-    print(f"Part 1: {result}")
+    print(f"Part 1: {solve(rounds, False)}")
 
 def part2(rounds: list[tuple[str,str]]):
-    rounds = [(handrank(h, True),b) for (h,b) in rounds]
-    rounds.sort()
-    result = sum([(i+1) * int(bid) for i,(h,bid) in enumerate(rounds)])
-    print(f"Part 2: {result}")
+    print(f"Part 2: {solve(rounds, True)}")
 
 if __name__ == '__main__':
     with open(sys.argv[1]) as file:
