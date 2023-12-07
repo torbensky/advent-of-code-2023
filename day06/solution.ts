@@ -73,7 +73,14 @@ function part1(times: number[], distances: number[]){
     console.log(`Part 1: ${answer}`)
 }
 
+function part2(times: number[], distances: number[]){
+    const time = parseInt(times.join(''))
+    const record = parseInt(distances.join(''))
+    console.log(`Part 2: ${winsPossible(time, record)}`)
+}
+
 const lines = readFileSync(process.argv[2]).toString().split("\n")
 const times = lines[0].split(/\s+/).slice(1).map(v => parseInt(v))
 const distances = lines[1].split(/\s+/).slice(1).map(v => parseInt(v))
 part1(times,distances)
+part2(times,distances)
