@@ -32,8 +32,8 @@ function winsPossible(time: number, record: number): number{
     // now we can solve for x:
     // x = (-b +/- sqrt(D)) / 2a
     // x = (-time +/- sqrt(D)) / -2
-    let shortest = Math.round((-1 * time + Math.sqrt(D)) / -2)
-    let longest = Math.round((-1 * time - Math.sqrt(D)) / -2)
+    let shortest = Math.ceil((-time + Math.sqrt(D)) / -2)
+    let longest = Math.floor((-time - Math.sqrt(D)) / -2)
 
     // Okay, so now we know the APPROXIMATE hold times to tie (we rounded since the hold time has to be whole numbers)
     // We need to figure out where the limit is for winning.
