@@ -34,10 +34,9 @@ func navigate(node, target string, moves []byte, network Network) int {
 		}
 		steps++
 		if strings.HasSuffix(node, target) {
-			break
+			return steps
 		}
 	}
-	return steps
 }
 
 func part1(moves []byte, network Network) {
