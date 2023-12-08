@@ -64,8 +64,12 @@ def part2(rounds: list[tuple[str,str]]):
     print(f"Part 2: {solve(rounds, True)}")
 
 if __name__ == '__main__':
+    from datetime import datetime
+    start = datetime.now()
     with open(sys.argv[1]) as file:
         lines = file.readlines()
     data = [line.split() for line in lines]
     part1(data)
     part2(data)
+    elapsed = datetime.now() - start
+    print("Elapsed time: ", elapsed.microseconds, "us") 

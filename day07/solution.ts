@@ -33,7 +33,7 @@ function rankHandType(hand: string, useWildcards: boolean): number {
             // full house
             return 5
         case 3:
-            if(orderedCounts[0][1] === 3 && orderedCounts[1][1] == 1){
+            if(orderedCounts[0][1] === 3 && orderedCounts[1][1] === 1){
                 // three of a kind
                 return 4
             }
@@ -89,7 +89,9 @@ function part2(rounds: Round[]){
     console.log(`Part 2: ${answer}`)
 }
 
+console.time('Elapsed time')
 const lines = readFileSync(process.argv[2]).toString().split('\n')
 const rounds = parseLines(lines)
 part1(rounds)
 part2(rounds)
+console.timeEnd('Elapsed time')
