@@ -35,7 +35,24 @@ func (cc cardCounter) getMostCommon() (b byte, c int) {
 	return b, c
 }
 
-func handType(hand []byte) int {
+func handType(hand []byte, wildcard bool) int {
+	if bytes.Count(hand, []byte{'1'}) == 5 {
+		return 7 // five of a kind, joker early return
+	}
+	if wildcard {
+		var handCopy []byte
+		for _, b := range hand {
+			if b == '1' {
+				continue
+			}
+			handCopy = append(handCopy, b)
+		}
+		counts := countCards(handCopy)
+		b, _ := counts.getMostCommon()
+		// overwrite hand
+		hand = append(handCopy, bytes.Repeat([]byte{b}, len(hand)-len(handCopy))...)
+	}
+
 	counts := countCards(hand)
 	numGroups := len(counts)
 	b, mostCommon := counts.getMostCommon()
@@ -77,7 +94,13 @@ func roundSortFunc(a, b round) int {
 	return bytes.Compare(a.hand, b.hand)
 }
 
-func hToR(hand, bid []byte) round {
+func hToR(hand, bid []byte, wildcard bool) round {
+	hand = append(hand[:0:0], hand...)
+	// when wildcards enabled, we change how joker gets mapped
+	jsub := byte('B')
+	if wildcard {
+		jsub = '1'
+	}
 	// we're going to convert the card faces to hex values according to their rank
 	// this will give us the benefit of a naturally sortable / comparable hand
 	for i, c := range hand {
@@ -85,7 +108,7 @@ func hToR(hand, bid []byte) round {
 		case 'T':
 			hand[i] = 'A'
 		case 'J':
-			hand[i] = 'B'
+			hand[i] = jsub
 		case 'Q':
 			hand[i] = 'C'
 		case 'K':
@@ -96,33 +119,43 @@ func hToR(hand, bid []byte) round {
 			// leave as-is
 		}
 	}
-	return round{hand, mustInt(bid, "bid should be an int"), handType(hand)}
+	return round{hand, mustInt(bid, "bid should be an int"), handType(hand, wildcard)}
 }
 
-func parseInput(lines [][]byte) []round {
+func parseInput(lines [][]byte, wildcard bool) []round {
 	rounds := make([]round, len(lines))
 	for i, line := range lines {
 		parts := bytes.Split(line, []byte{' '})
-		rounds[i] = hToR(parts[0], parts[1])
+		rounds[i] = hToR(parts[0], parts[1], wildcard)
 	}
 	return rounds
 }
 
-func part1(rounds []round) {
+func solve(rounds []round, wildcard bool) int {
 	slices.SortFunc(rounds, roundSortFunc)
 	answer := 0
 	for i, r := range rounds {
 		answer += (i + 1) * r.bid
 	}
-	fmt.Printf("Part 1: %d\n", answer)
+	return answer
+}
+
+func part1(data []byte) {
+	rounds := parseInput(bytes.Split(data, []byte{'\n'}), false)
+	fmt.Printf("Part 1: %d\n", solve(rounds, false))
+}
+
+func part2(data []byte) {
+	rounds := parseInput(bytes.Split(data, []byte{'\n'}), true)
+	fmt.Printf("Part 1: %d\n", solve(rounds, true))
 }
 
 func main() {
 	start := time.Now()
 	data, err := os.ReadFile(os.Args[1])
 	must(err, "unable to read input file")
-	rounds := parseInput(bytes.Split(data, []byte{'\n'}))
-	part1(rounds)
+	part1(data)
+	part2(data)
 	elapsed := time.Since(start)
 	log.Printf("Took %s", elapsed)
 }
