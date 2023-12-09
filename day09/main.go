@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
 	"strconv"
 )
 
@@ -55,7 +56,14 @@ func solve(rows [][]int) (result int) {
 }
 
 func part1(rows [][]int) {
-	fmt.Printf("Par 1: %d\n", solve(rows))
+	fmt.Printf("Part 1: %d\n", solve(rows))
+}
+
+func part2(rows [][]int) {
+	for _, row := range rows {
+		slices.Reverse(row)
+	}
+	fmt.Printf("Part 2: %d\n", solve(rows))
 }
 
 func main() {
@@ -63,6 +71,21 @@ func main() {
 	must(err, "reading input file")
 	rows := parseInput(data)
 	part1(rows)
+	// We can take advantage of an interesting property of the number pyramid to
+	// solve part 2 and simply reverse the rows to get the answer.
+	//
+	// In part 1:
+	// For a row of numbers v1, v2... vn, the last number of the next row is
+	// given by vn - v(n-1) and then the next number for that row is v(n+1) = (vn - v(n-1) + vn).
+	//
+	// In part 2:
+	// For the same row of numbers, the first number of the next row is given by
+	// (v2 - v1) and then the previous number for that row is v0 = v1 - (v2 - v1)
+	// When we reverse, v0 = v(n+1), v1 = vn, v2 = v(n-1) which means
+	// v0 = v1 - (v2 - v1)
+	// = v(n+1) = vn - (v(n-1) - vn)
+	// = vn - v(n-1) + vn <--------- gee, doesn't that look familiar!? ;)
+	part2(rows)
 }
 
 func mustInt(b []byte, msg string) int {
