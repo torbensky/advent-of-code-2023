@@ -1,4 +1,5 @@
 
+import operator
 import sys
 
 def diffgen(history: list[int]):
@@ -9,23 +10,30 @@ def diffgen(history: list[int]):
     if len(history) == 1:
         yield 0
 
-def extrapolate(below, above):
-    return above + below
+def extrapolate(below: int, above: int, left = False):
+    return above - below if left else above + below
 
-def part1(data: list[list[int]]):
-    lastlasts = []
+def solve(data: list[list[int]], left = False):
+    finalvals = []
+    idx = 0 if left else -1
     for history in data:
-        lasts = [history[-1]]
+        vals = [history[idx]]
         while True:
             history = list(diffgen(history))
-            lasts.append(history[-1])
+            vals.append(history[idx])
             if history.count(0) == len(history):
                 break
         v = 0
-        for v2 in lasts[::-1]:
-            v = extrapolate(v,v2)
-        lastlasts.append(v)
-    print(f"Part 1: {sum(lastlasts)}")
+        for v2 in vals[::-1]:
+            v = extrapolate(v, v2,left)
+        finalvals.append(v)
+    return sum(finalvals)
+
+def part1(data: list[list[int]]):
+    print(f"Part 1: {solve(data)}")
+
+def part2(data: list[list[int]]):
+    print(f"Part 2: {solve(data, True)}")
 
 if __name__ == '__main__':
     with open(sys.argv[1]) as f:
@@ -35,3 +43,4 @@ if __name__ == '__main__':
         got = extrapolate(*tc[0:2])
         assert got == tc[2], f"wanted {tc[2]}, got {got} for {tc}"
     part1(data)
+    part2(data)
