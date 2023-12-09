@@ -1,5 +1,4 @@
 
-import operator
 import sys
 
 def diffgen(history: list[int]):
