@@ -13,7 +13,7 @@ function solveRow(data: number[]){
             prev = next
             return tmp
         })
-        result += (data.length > 0) ? data[data.length-1] : 0
+        result += data[data.length-1]
     }while(!data.every(v => v === 0))
     return result
 }
