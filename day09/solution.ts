@@ -5,7 +5,7 @@ function parseInput(lines: string[]): number[][] {
 }
 
 function solveRow(data: number[]){
-    const vals:number[] = [data[data.length-1]]
+    let result = data[data.length-1]
     do{
         let prev = data[0]
         data = data.slice(1).map(next => {
@@ -13,10 +13,9 @@ function solveRow(data: number[]){
             prev = next
             return tmp
         })
-        vals.push(data.length > 0 ? data[data.length-1] : 0)
-
+        result += (data.length > 0) ? data[data.length-1] : 0
     }while(!data.every(v => v === 0))
-    return vals.reduce((a,c) => a + c, 0)
+    return result
 }
 
 function solve(data: number[][]){
