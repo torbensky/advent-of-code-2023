@@ -27,8 +27,6 @@ def navigate(node: str, target: str, movements: list[str], nodes: network):
 
 
 def part1(movements: list[str], nodes: network):    
-    # IMPORTANT: this only reliably works in Python 3.7+
-    # https://docs.python.org/3.7/library/stdtypes.html#dict.values
     steps = navigate('AAA', 'ZZZ', movements, nodes)
     
     print(f"Part 1: {steps}")
