@@ -22,6 +22,10 @@ func parseInput(data []byte) (rows [][]int) {
 }
 
 func nextRow(row []int) (result []int, zeros bool) {
+	if len(row) <= 1 {
+		return []int{0}, true
+	}
+
 	result = make([]int, len(row)-1)
 	prev := row[0]
 	zeros = prev == 0
