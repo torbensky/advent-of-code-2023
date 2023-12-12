@@ -55,3 +55,4 @@ const galaxies = rows.flatMap((row,y) => {
 })
 
 console.log(`Part 1: ${solve(galaxies, expansionRows, expansionCols, 1)}`)
+console.log(`Part 2: ${solve(galaxies, expansionRows, expansionCols, 1000000-1)}`)
