@@ -82,6 +82,7 @@ func main() {
 	emptyCols := emptyCols(grid)
 	galaxies := findGalaxies(grid)
 	fmt.Printf("Part 1: %d\n", solve(galaxies, emptyRows, emptyCols, 1))
+	fmt.Printf("Part 2: %d\n", solve(galaxies, emptyRows, emptyCols, 1000000-1))
 }
 
 func must(err error, msg string) {
