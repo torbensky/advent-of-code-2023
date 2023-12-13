@@ -3,10 +3,12 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"log/slog"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type record struct {
@@ -149,11 +151,14 @@ func part2(records []record) {
 }
 
 func main() {
+	start := time.Now()
 	data, err := os.ReadFile(os.Args[1])
 	must(err, "reading puzzle input")
 	records := parseInput(data)
 	part1(records)
 	part2(records)
+	elapsed := time.Since(start)
+	log.Printf("Took %s", elapsed)
 }
 
 func must(err error, msg string) {
