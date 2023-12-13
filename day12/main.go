@@ -5,38 +5,50 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"slices"
 	"strconv"
-)
-
-const (
-	operational byte = '.'
-	damaged     byte = '#'
-	unknown     byte = '?'
+	"strings"
 )
 
 type record struct {
-	conditions []byte
+	conditions string
 	checks     []int
 }
 
-func (r record) String() string {
-	return fmt.Sprintf("%s %v", string(r.conditions), r.checks)
+// turn consecutive .'s into one '.'
+func normalizeDots(record string) string {
+	var sb strings.Builder
+	seen := false
+	for _, c := range record {
+		if c == '.' {
+			if !seen {
+				sb.WriteRune(c)
+			}
+			seen = true
+			continue
+		}
+		seen = false
+		sb.WriteRune(c)
+	}
+	return sb.String()
 }
 
-func parseRecord(line []byte) (result record) {
+func (r record) optimize() record {
+	lastNonOperational := strings.LastIndexAny(r.conditions, "?#")
+	oc := normalizeDots(r.conditions[:lastNonOperational+1])
+	return record{oc, r.checks}
+}
+
+func parseRecord(line []byte) record {
 	// format is like "#..??.#?..?#.#.? 1,2,2"
 	parts := bytes.Split(line, []byte{' '})
-	result.conditions = make([]byte, len(parts[0]))
-	copy(result.conditions, parts[0])
 
 	vs := bytes.Split(parts[1], []byte{','})
-	result.checks = make([]int, len(vs))
+	checks := make([]int, len(vs))
 	for i, v := range vs {
-		result.checks[i] = mustInt(v, fmt.Sprintf("expecting ints for record checks - %v is not int", v))
+		checks[i] = mustInt(v, fmt.Sprintf("expecting ints for record checks - %v is not int", v))
 	}
 
-	return result
+	return record{string(parts[0]), checks}
 }
 
 func parseInput(data []byte) []record {
@@ -48,69 +60,92 @@ func parseInput(data []byte) []record {
 	return records
 }
 
-func (r record) status() (result []int) {
-	dmgCount := 0
-	for _, c := range r.conditions {
-		if c == damaged {
-			dmgCount++
+func (r record) repeat(n int) record {
+	var sb strings.Builder
+	var checks []int
+	for i := 0; i < n; i++ {
+		sb.WriteString(r.conditions)
+		if i != n-1 {
+			sb.WriteRune('?')
+		}
+		checks = append(checks, r.checks...)
+	}
+	return record{sb.String(), checks}
+}
+
+var cache = map[string]int{}
+
+func countArrangements(record string, groups []int) int {
+	key := fmt.Sprintf("%s%v", record, groups)
+	if v, ok := cache[key]; ok {
+		return v
+	}
+
+	// check if we consumed all groups and whether that is a match or not
+	if len(groups) == 0 {
+		if strings.ContainsRune(record, '#') {
+			return 0
+		}
+		return 1
+	}
+
+	// ignore leading operational records
+	start := 0
+	for ; start < len(record)-1; start++ {
+		if record[start] != '.' {
+			break
+		}
+	}
+
+	// consume the next group
+	end := len(record) - len(groups) + 1 // space for '.' separators
+	for _, g := range groups {
+		end -= g // space for each damaged area
+	}
+
+	nextDmg := strings.IndexRune(record, '#')
+	if nextDmg >= 0 {
+		end = min(end, nextDmg)
+	}
+	count := 0
+	for i := start; i < end+1; i++ {
+		windowEnd := i + groups[0]
+		window := record[i:windowEnd]
+		if strings.Count(window, ".") > 0 {
 			continue
 		}
-		if dmgCount > 0 {
-			result = append(result, dmgCount)
-			dmgCount = 0
+
+		next := record[windowEnd:]
+		if strings.HasPrefix(next, "#") {
+			continue
 		}
-	}
-	if dmgCount > 0 {
-		result = append(result, dmgCount)
-	}
-	return result
-}
-
-func (r record) setCondition(pos int, c byte) record {
-	conditions := make([]byte, len(r.conditions))
-	copy(conditions, r.conditions)
-	conditions[pos] = c
-	return record{conditions, r.checks}
-}
-
-type stringset map[string]struct{}
-
-func newStringSet(s string) stringset {
-	return map[string]struct{}{s: {}}
-}
-
-func (ss stringset) addAll(others stringset) {
-	for k, v := range others {
-		ss[k] = v
-	}
-}
-
-func findValidCombinations(r record, cache map[string]stringset) stringset {
-	if results, ok := cache[r.String()]; ok {
-		return results
-	}
-	if slices.Equal(r.checks, r.status()) {
-		c := bytes.ReplaceAll(r.conditions, []byte{unknown}, []byte{operational})
-		return newStringSet(string(c))
-	}
-
-	validSet := stringset{}
-	for i, c := range r.conditions {
-		if c == unknown {
-			vc := findValidCombinations(r.setCondition(i, damaged), cache)
-			validSet.addAll(vc)
+		if len(groups) > 1 {
+			next = next[1:]
 		}
+		count += countArrangements(next, groups[1:])
 	}
-	cache[r.String()] = validSet
-	return validSet
+	cache[key] = count
+	return count
 }
 
 func part1(records []record) {
 	answer := 0
 	for _, r := range records {
-		answer += len(findValidCombinations(r, map[string]stringset{}))
+		r = r.optimize()
+		num := countArrangements(r.conditions, r.checks)
+		answer += num
 	}
 	fmt.Printf("Part 1: %d\n", answer)
+}
+
+func part2(records []record) {
+	answer := 0
+	for _, r := range records {
+		r = r.repeat(5).optimize()
+		num := countArrangements(r.conditions, r.checks)
+		answer += num
+	}
+	fmt.Printf("Part 2: %d\n", answer)
 }
 
 func main() {
@@ -118,6 +153,7 @@ func main() {
 	must(err, "reading puzzle input")
 	records := parseInput(data)
 	part1(records)
+	part2(records)
 }
 
 func must(err error, msg string) {
